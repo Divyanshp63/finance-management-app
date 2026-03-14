@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Personal Finance App{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Dashboard</h1>
+    <div class="header-actions">
+        <button class="btn btn-primary" onclick="document.location.href='/expense'">+ Add Expense</button>
+        <button class="btn btn-secondary" onclick="document.location.href='/reports'">View Reports</button>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="cards-grid">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Total Expenses</div>
+            <div class="card-icon expense">💳</div>
+        </div>
+        <div class="card-value">₹{{ "%.0f"|format(total_expense) }}</div>
+        <div class="card-description">All Time</div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Budget Limit</div>
+            <div class="card-icon budget">💼</div>
+        </div>
+        <div class="card-value">₹{{ "%.0f"|format(total_budget) }}</div>
+        <div class="card-description">Set Budgets</div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Total Savings</div>
+            <div class="card-icon saving">🏦</div>
+        </div>
+        <div class="card-value">₹{{ "%.0f"|format(total_saving) }}</div>
+        <div class="card-description">Accumulated</div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Investments</div>
+            <div class="card-icon investment">📈</div>
+        </div>
+        <div class="card-value">₹{{ "%.0f"|format(total_investment) }}</div>
+        <div class="card-description">Portfolio Value</div>
+    </div>
+</div>
+
+<!-- Smart Alerts Section -->
+{% if alerts %}
+<div style="margin-bottom: 40px;">
+    <h2 style="margin-bottom: 20px; color: #1a2332; font-size: 22px; font-weight: 800; padding-bottom: 12px; border-bottom: 4px solid #e74c3c; letter-spacing: -0.3px;">🔔 Smart Alerts</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px;">
+        {% for alert in alerts %}
+            <div class="dashboard-alert-card alert-{{ alert.severity }}">
+                <div style="display: flex; gap: 14px; align-items: flex-start;">
+                    <div style="font-size: 28px; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">{% if alert.severity == 'critical' %}🚨{% elif alert.severity == 'warning' %}⚠️{% else %}ℹ️{% endif %}</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 15px; color: #1a2332; line-height: 1.6; font-weight: 700;">{{ alert.message }}</div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="/insights" class="btn btn-secondary" style="padding: 12px 28px; font-size: 13px; font-weight: 700;">View All Alerts →</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Financial Goals Section -->
+{% if goals %}
+<div style="margin-bottom: 40px;">
+    <h2 style="margin-bottom: 15px; color: #333; font-size: 18px; font-weight: 600;">🎯 Financial Goals</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        {% for goal_progress in goals %}
+            {% set goal = goal_progress.goal %}
+            <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-size: 20px;">{{ goal.emoji }}</div>
+                    <div style="font-size: 12px; color: #999;">{{ goal_progress.progress_percentage | int }}%</div>
+                </div>
+                <div style="font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px;">{{ goal.name }}</div>
+                <div style="background: #e9ecef; border-radius: 5px; height: 6px; overflow: hidden; margin-bottom: 8px;">
+                    <div style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: {{ goal_progress.progress_percentage }}%;"></div>
+                </div>
+                <div style="font-size: 12px; color: #666; display: flex; justify-content: space-between;">
+                    <span>₹{{ goal.current_amount | int }}</span>
+                    <span style="font-weight: 600;">₹{{ goal.target_amount | int }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div style="text-align: center; margin-top: 15px;">
+        <a href="/goal" class="btn btn-secondary" style="padding: 8px 20px; font-size: 12px;">Manage Goals →</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Key Insights Section -->
+{% if insights %}
+<div style="margin-bottom: 40px;">
+    <h2 style="margin-bottom: 20px; color: #1a2332; font-size: 22px; font-weight: 800; padding-bottom: 12px; border-bottom: 4px solid #667eea; letter-spacing: -0.3px;">✨ Insights</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+        {% for insight in insights %}
+            <div class="dashboard-insight-card">
+                <div style="display: flex; gap: 12px; align-items: flex-start;">
+                    <div style="font-size: 32px; flex-shrink: 0; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">{{ insight.emoji }}</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 15px; color: #1a2332; line-height: 1.6; font-weight: 600;">{{ insight.message }}</div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="/insights" class="btn btn-secondary" style="padding: 12px 28px; font-size: 13px; font-weight: 700;">View All Insights →</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Expenses Table -->
+<div class="table-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Recent Expenses</h2>
+        <a href="/expense" class="btn btn-primary">View All</a>
+    </div>
+    {% if expenses %}
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses[:5] %}
+            <tr>
+                <td>{{ expense.category }}</td>
+                <td style="color: #e74c3c; font-weight: 700;">₹{{ "%.0f"|format(expense.amount) }}</td>
+                <td>{{ expense.date.strftime('%d %b %Y') if expense.date else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📊</div>
+        <p>No expenses recorded yet</p>
+        <button class="btn btn-primary" onclick="document.location.href='/expense'">Add First Expense</button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

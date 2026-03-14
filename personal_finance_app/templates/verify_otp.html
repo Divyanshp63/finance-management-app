@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Email - Personal Finance App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h3 class="mb-0">📧 Verify Your Email</h3>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-center text-muted mb-4">
+                    A 6-digit OTP has been sent to <strong>{{ email }}</strong>.
+                    Please enter it below to verify your account.
+                </p>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('auth.verify_otp') }}">
+                    <input type="hidden" name="email" value="{{ email }}">
+                    <div class="mb-3 text-center">
+                        <label for="otp" class="form-label">Enter 6-Digit OTP</label>
+                        <input type="text" class="form-control form-control-lg text-center fw-bold" id="otp" name="otp"
+                            maxlength="6" pattern="\d{6}" required placeholder="XXXXXX" autofocus>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Verify OTP</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center py-3">
+                <p class="mb-0 text-muted">Didn't receive the email? <a href="{{ url_for('auth.register') }}">Register
+                        again</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #otp {
+        letter-spacing: 5px;
+        font-size: 2rem;
+    }
+</style>
+{% endblock %}

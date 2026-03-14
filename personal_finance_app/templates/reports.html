@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Personal Finance App{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Financial Reports 📋</h1>
+</div>
+
+<!-- Summary Cards -->
+<div class="cards-grid">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Total Expenses</div>
+            <div class="card-icon expense">💳</div>
+        </div>
+        <div class="card-value">${{ "%.2f"|format(total_expense) }}</div>
+        <div class="card-description">All Expenses</div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Budget Limit</div>
+            <div class="card-icon budget">💼</div>
+        </div>
+        <div class="card-value">${{ "%.2f"|format(total_budget) }}</div>
+        <div class="card-description">Set Budgets</div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Total Savings</div>
+            <div class="card-icon saving">🏦</div>
+        </div>
+        <div class="card-value">${{ "%.2f"|format(total_saving) }}</div>
+        <div class="card-description">Accumulated</div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Investments</div>
+            <div class="card-icon investment">📈</div>
+        </div>
+        <div class="card-value">${{ "%.2f"|format(total_investment) }}</div>
+        <div class="card-description">Portfolio</div>
+    </div>
+</div>
+
+<!-- Expenses Report -->
+<div class="table-section">
+    <h2>Expense Summary</h2>
+    {% if expenses %}
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total Amount</th>
+                <th>Count</th>
+                <th>Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td><strong>{{ expense.category }}</strong></td>
+                <td style="color: #e74c3c; font-weight: 700;">${{ "%.2f"|format(expense.amount) }}</td>
+                <td>1</td>
+                <td>{{ "%.1f"|format((expense.amount / total_expense * 100) if total_expense > 0 else 0) }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #999; padding: 30px;">No expense data available</p>
+    {% endif %}
+</div>
+
+<!-- Budgets Report -->
+<div class="table-section" style="margin-top: 30px;">
+    <h2>Budget Summary</h2>
+    {% if budgets %}
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Budget Limit</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for budget in budgets %}
+            <tr>
+                <td><strong>{{ budget.category }}</strong></td>
+                <td style="color: #3498db; font-weight: 700;">${{ "%.2f"|format(budget.limit) }}</td>
+                <td><span style="color: #27ae60; font-weight: 600;">✓ Active</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #999; padding: 30px;">No budget data available</p>
+    {% endif %}
+</div>
+
+<!-- Savings Report -->
+<div class="table-section" style="margin-top: 30px;">
+    <h2>Savings Goals</h2>
+    {% if savings %}
+    <table>
+        <thead>
+            <tr>
+                <th>Goal</th>
+                <th>Amount</th>
+                <th>Progress</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for saving in savings %}
+            <tr>
+                <td><strong>{{ saving.goal }}</strong></td>
+                <td style="color: #27ae60; font-weight: 700;">${{ "%.2f"|format(saving.amount) }}</td>
+                <td>
+                    <div style="background: #e9ecef; height: 20px; border-radius: 5px; overflow: hidden;">
+                        <div style="background: #27ae60; height: 100%; width: 60%;"></div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #999; padding: 30px;">No savings data available</p>
+    {% endif %}
+</div>
+
+<!-- Investments Report -->
+<div class="table-section" style="margin-top: 30px;">
+    <h2>Investment Portfolio</h2>
+    {% if investments %}
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for investment in investments %}
+            <tr>
+                <td><strong>{{ investment.type }}</strong></td>
+                <td style="color: #f39c12; font-weight: 700;">${{ "%.2f"|format(investment.amount) }}</td>
+                <td>{{ "%.1f"|format((investment.amount / total_investment * 100) if total_investment > 0 else 0) }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #999; padding: 30px;">No investment data available</p>
+    {% endif %}
+</div>
+{% endblock %}

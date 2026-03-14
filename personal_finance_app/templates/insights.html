@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Insights - Personal Finance App{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>💡 Smart Insights & Alerts</h1>
+</div>
+
+<!-- Alerts Section -->
+{% if alerts %}
+<div class="section-container">
+    <h2 class="section-header">🔔 Smart Alerts</h2>
+    
+    <div class="cards-grid">
+        {% for alert in alerts %}
+            <div class="alert-card alert-{{ alert.severity }}">
+                <div class="alert-content">
+                    <div class="alert-icon">
+                        {% if alert.severity == 'critical' %}🚨
+                        {% elif alert.severity == 'warning' %}⚠️
+                        {% else %}ℹ️
+                        {% endif %}
+                    </div>
+                    <div class="alert-message">
+                        <div class="alert-title">{{ alert.message }}</div>
+                        <div class="alert-details">
+                            {% if alert.type == 'budget_exceeded' %}
+                                Spent: <strong>₹{{ alert.spent | int }}</strong> / Limit: ₹{{ alert.limit | int }} ({{ alert.percentage | int }}%)
+                            {% elif alert.type == 'unusual_expense' %}
+                                Today: <strong>₹{{ alert.today_amount | int }}</strong> vs Average: ₹{{ alert.average_daily | int }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Insights Section -->
+{% if insights %}
+<div class="section-container">
+    <h2 class="section-header">✨ Key Insights</h2>
+    
+    <div class="cards-grid">
+        {% for insight in insights %}
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-icon">{{ insight.emoji }}</div>
+                    <div class="card-text">
+                        <div class="card-message">
+                            {{ insight.message }}
+                        </div>
+                        {% if insight.type == 'trend' %}
+                            <div class="card-footer">
+                                Current: <strong>₹{{ insight.current_amount | int }}</strong> | Previous: ₹{{ insight.previous_amount | int }}
+                            </div>
+                        {% elif insight.type == 'savings' %}
+                            <div class="card-footer">
+                                Savings Rate: <strong>{{ insight.savings_rate | int }}%</strong>
+                            </div>
+                        {% elif insight.type == 'category' %}
+                            <div class="card-footer">
+                                <strong>{{ insight.percentage | int }}%</strong> of your budget
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Predictions Section -->
+{% if predictions %}
+<div class="section-container">
+    <h2 class="section-header">📊 Predictions & Forecasts</h2>
+    
+    <div class="cards-grid">
+        {% for prediction in predictions %}
+            <div class="card prediction">
+                <div class="card-content">
+                    <div class="card-icon">{{ prediction.emoji }}</div>
+                    <div class="card-text">
+                        <div class="card-message">
+                            {{ prediction.message }}
+                        </div>
+                        {% if prediction.type == 'expense_forecast' %}
+                            <div class="card-footer">
+                                <div class="prediction-value">₹{{ prediction.predicted_amount | int }}</div>
+                                <small>Confidence: {{ prediction.confidence }}</small>
+                            </div>
+                        {% elif prediction.type == 'savings_forecast' %}
+                            <div class="card-footer">
+                                <div class="prediction-value" style="color: #27ae60;">₹{{ prediction.predicted_savings | int }}</div>
+                                <small>Next month's saving</small>
+                            </div>
+                        {% elif prediction.type == 'anomaly' %}
+                            <div class="card-footer">
+                                <small>Change: <strong>{{ prediction.change_percentage | int }}%</strong></small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Empty State -->
+{% if not alerts and not insights and not predictions %}
+<div class="empty-state">
+    <div class="empty-state-icon">📊</div>
+    <p>No insights available yet. Add some expenses and budgets to see smart insights!</p>
+</div>
+{% endif %}
+
+<style>
+    .section-container {
+        margin-bottom: 50px;
+    }
+    
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .alert-card {
+        background: white;
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #ddd;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-top: 2px solid transparent;
+        position: relative;
+    }
+    
+    .alert-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    }
+    
+    .alert-card.alert-critical {
+        border-left-color: #e74c3c;
+        border-top-color: #e74c3c;
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+    }
+    
+    .alert-card.alert-critical:hover {
+        box-shadow: 0 8px 24px rgba(231, 76, 60, 0.2);
+    }
+    
+    .alert-card.alert-warning {
+        border-left-color: #f39c12;
+        border-top-color: #f39c12;
+        background: linear-gradient(135deg, #fffbf0 0%, #ffe8d6 100%);
+    }
+    
+    .alert-card.alert-warning:hover {
+        box-shadow: 0 8px 24px rgba(243, 156, 18, 0.2);
+    }
+    
+    .alert-card.alert-info {
+        border-left-color: #3498db;
+        border-top-color: #3498db;
+        background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%);
+    }
+    
+    .alert-card.alert-info:hover {
+        box-shadow: 0 8px 24px rgba(52, 152, 219, 0.2);
+    }
+    
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3498db, #2ecc71);
+    }
+    
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    }
+    
+    .alert-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .alert-icon {
+        font-size: 32px;
+        flex-shrink: 0;
+        animation: pulse 2.5s infinite;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+        line-height: 1;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .alert-message {
+        flex: 1;
+    }
+    
+    .alert-title {
+        font-weight: 800;
+        color: #1a2332;
+        margin-bottom: 8px;
+        font-size: 16px;
+        letter-spacing: -0.2px;
+    }
+    
+    .alert-details {
+        font-size: 14px;
+        color: #333;
+        line-height: 1.5;
+        font-weight: 500;
+    }
+    
+    .card-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .card-icon {
+        font-size: 40px;
+        flex-shrink: 0;
+        line-height: 1;
+        filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+    }
+    
+    .card-text {
+        flex: 1;
+    }
+    
+    .card-message {
+        color: #1a2332;
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 14px;
+        font-weight: 600;
+    }
+    
+    .card.prediction .card-message {
+        color: #0f1419;
+        font-weight: 700;
+    }
+    
+    .card-footer {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 2px solid #e0e0e0;
+        font-size: 14px;
+        color: #333;
+        font-weight: 700;
+    }
+    
+    .card.prediction .card-footer {
+        border-top-color: #667eea;
+        color: #2c3e50;
+    }
+    
+    .card.prediction .card-footer small {
+        color: #555;
+        font-weight: 600;
+    }
+    
+    .prediction-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #667eea;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 80px 40px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        margin: 40px 0;
+    }
+    
+    .empty-state-icon {
+        font-size: 72px;
+        margin-bottom: 24px;
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+    
+    .empty-state p {
+        font-size: 18px;
+        color: #7f8c8d;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}

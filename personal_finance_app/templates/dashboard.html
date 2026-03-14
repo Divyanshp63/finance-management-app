@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<p>Welcome to your finance dashboard!</p>
+<ul>
+    <li>Total Expenses: ₹{{ total_expenses }}</li>
+    <li>Total Savings: ₹{{ total_savings }}</li>
+    <li>Total Investments: ₹{{ total_investments }}</li>
+</ul>
+{% endblock %}

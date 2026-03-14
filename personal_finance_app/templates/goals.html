@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Financial Goals - Personal Finance App{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>🎯 Financial Goals</h1>
+    <button class="btn btn-primary" onclick="openAddGoalModal()">+ Set New Goal</button>
+</div>
+
+<!-- Goals Grid -->
+<div class="cards-grid">
+    {% if goals_progress %}
+        {% for progress in goals_progress %}
+            {% set goal = progress.goal %}
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div style="font-size: 24px; margin-bottom: 10px;">{{ goal.emoji }}</div>
+                        <div class="card-title">{{ goal.name }}</div>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div style="margin: 15px 0;">
+                    <div style="background: #e9ecef; border-radius: 10px; height: 10px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: {{ progress.progress_percentage }}%; transition: width 0.3s ease;"></div>
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-top: 8px; display: flex; justify-content: space-between;">
+                        <span>₹{{ goal.current_amount | int }} / ₹{{ goal.target_amount | int }}</span>
+                        <span>{{ progress.progress_percentage | int }}%</span>
+                    </div>
+                </div>
+                
+                <!-- Monthly Target -->
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 13px;">
+                    <strong>Monthly Target:</strong> ₹{{ progress.monthly_target | int }}/month
+                    <br>
+                    <small style="color: #999;">for {{ goal.deadline_months }} months</small>
+                </div>
+                
+                {% if progress.is_complete %}
+                    <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; text-align: center; font-weight: 600; margin-bottom: 10px;">
+                        ✓ Goal Completed!
+                    </div>
+                {% endif %}
+                
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <form method="POST" action="{{ url_for('goal.add_to_goal', goal_id=goal.id) }}" style="flex: 1;">
+                        <div style="display: flex; gap: 5px;">
+                            <input type="number" name="amount" placeholder="Amount" step="100" required style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                            <button type="submit" class="btn btn-primary" style="padding: 8px 15px;">+</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <form method="POST" action="{{ url_for('goal.delete_goal', goal_id=goal.id) }}" style="margin-top: 10px;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%; background: #ffe5e5; color: #e74c3c; border: none;">Delete</button>
+                </form>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🎯</div>
+            <p>No financial goals set yet</p>
+            <button class="btn btn-primary" onclick="openAddGoalModal()">Set Your First Goal</button>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Add Goal Modal -->
+<div id="addGoalModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+        <h2 style="margin-bottom: 20px; color: #333;">Set a New Goal</h2>
+        
+        <form method="POST" action="{{ url_for('goal.goals') }}">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #666; font-weight: 600;">Goal Name</label>
+                <input type="text" name="name" placeholder="e.g., Buy Laptop" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #666; font-weight: 600;">Emoji</label>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    {% set emojis = ['🎯', '💻', '🚲', '✈️', '🏠', '🎮', '📚', '💍', '🎵', '⌚'] %}
+                    {% for emoji in emojis %}
+                        <button type="button" onclick="selectEmoji('{{ emoji }}')" style="font-size: 24px; padding: 10px; border: 2px solid #ddd; border-radius: 5px; background: white; cursor: pointer;">{{ emoji }}</button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="emoji" id="selectedEmoji" value="🎯" required>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #666; font-weight: 600;">Target Amount (₹)</label>
+                <input type="number" name="target_amount" placeholder="e.g., 60000" min="0" step="1000" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #666; font-weight: 600;">Deadline (Months)</label>
+                <input type="number" name="deadline_months" placeholder="e.g., 6" min="1" step="1" value="6" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+                <small style="color: #999;">How many months to reach this goal?</small>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Create Goal</button>
+                <button type="button" onclick="closeAddGoalModal()" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAddGoalModal() {
+    document.getElementById('addGoalModal').style.display = 'flex';
+}
+
+function closeAddGoalModal() {
+    document.getElementById('addGoalModal').style.display = 'none';
+}
+
+function selectEmoji(emoji) {
+    document.getElementById('selectedEmoji').value = emoji;
+    // Highlight selected emoji
+    event.target.style.borderColor = '#667eea';
+}
+
+window.onclick = function(event) {
+    var modal = document.getElementById('addGoalModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+
+<style>
+    .progress-card {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .progress-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(102, 126, 234, 0.1), transparent);
+        width: 0%;
+    }
+</style>
+{% endblock %}
